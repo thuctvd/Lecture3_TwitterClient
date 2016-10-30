@@ -9,8 +9,8 @@
 import UIKit
 import BDBOAuth1Manager
 
-let twitterConsumerKey = "neaLRJESozIcazskqLocrIU7i" //"JxUiG0fZyXliskmGJZYLjZcc4" //"Sz6KQ6wwxhsMy149tp7BBqswr"
-let twitterConsumerSecret = "40thao2Bw7jiQXZi7wb2cDnn69ACWWlDpyN84ULang4R2YtN9a" //"2rW7IMZQ9Iz73JTwm800PGoaRHTPa3Vz59nDRXx2I1NIEaiipo" //"DEzlIwwdYMBmCYpOlvRlxmzPH5RbNHfdyrpoTsUw8AIJvLu2Qw"
+let twitterConsumerKey = "JxUiG0fZyXliskmGJZYLjZcc4" //"Sz6KQ6wwxhsMy149tp7BBqswr"
+let twitterConsumerSecret = "2rW7IMZQ9Iz73JTwm800PGoaRHTPa3Vz59nDRXx2I1NIEaiipo" //"DEzlIwwdYMBmCYpOlvRlxmzPH5RbNHfdyrpoTsUw8AIJvLu2Qw"
 let twitterBaseURL = NSURL(string: "https://api.twitter.com")
 
 class TwitterClient: BDBOAuth1SessionManager {
@@ -144,6 +144,20 @@ class TwitterClient: BDBOAuth1SessionManager {
             },
                                           failure: {(task: URLSessionDataTask?, error: Error?) -> Void in
                                             callBack(nil, error)
+            }
+        )
+    }
+    
+    func reply(_ message:String, id:String, callBack: @escaping (_ response:NSDictionary?, _ error:Error?) -> ()) {
+        let params = [
+            "status": message,
+            "in_reply_to_status_id": id
+        ]
+        TwitterClient.sharedInstance.post("1.1/statuses/update.json", parameters: params, progress: nil,
+                                          success: { (urlsessionTask, response) in
+                                            callBack(response as? NSDictionary, nil)
+            }, failure: { (task: URLSessionDataTask?, error: Error?) -> Void in
+                callBack(nil, error)
             }
         )
     }

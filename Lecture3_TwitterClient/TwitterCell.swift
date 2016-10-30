@@ -9,7 +9,7 @@
 import UIKit
 
 @objc protocol UITwitterCellDelegate {
-    @objc optional func twitterCellDelegate (twitterCell: TwitterCell, replyTo tweet: Tweet)
+    @objc optional func twitterCell (twitterCell: TwitterCell, replyTo tweet: Tweet)
 }
 
 class TwitterCell: UITableViewCell {
@@ -42,13 +42,51 @@ class TwitterCell: UITableViewCell {
     }
     
     @IBAction func onReply(_ sender: AnyObject) {
-        
+        delegate?.twitterCell!(twitterCell: self, replyTo: tweet!)
     }
     @IBAction func onRetweet(_ sender: AnyObject) {
-        
+        if let tweet = tweet {
+            if tweet.retweeted == false {
+                TwitterClient.sharedInstance.retweet(id: tweet.id!) { (response, error) -> () in
+                    if error == nil {
+                        self.tweet?.updateFromDic(dic: response!)
+                        self.drawUI(tweet: self.tweet!)
+                    }
+                }
+            } else {
+                TwitterClient.sharedInstance.unretweet(id: tweet.id!) { (response, error) -> () in
+                    if error == nil {
+                        self.tweet?.updateFromDic(dic: response!)
+                        self.tweet?.numRetweets -= 1
+                        if (self.tweet?.numRetweets)! < 0 {
+                            self.tweet?.numRetweets = 0
+                        }
+                        self.tweet?.retweeted = false
+                        self.drawUI(tweet: self.tweet!)
+                    }
+                }
+            }
+            
+        }
     }
     @IBAction func onLike(_ sender: AnyObject) {
-        
+        if let tweet = tweet {
+            if tweet.favorited == false {
+                TwitterClient.sharedInstance.favorite(id: tweet.id!) { (response, error) -> () in
+                    if error == nil {
+                        self.tweet?.updateFromDic(dic: response!)
+                        self.drawUI(tweet: self.tweet!)
+                    }
+                }
+            } else {
+                TwitterClient.sharedInstance.unfavorite(id: tweet.id!) { (response, error) -> () in
+                    if error == nil {
+                        self.tweet?.updateFromDic(dic: response!)
+                        self.drawUI(tweet: self.tweet!)
+                    }
+                }
+            }
+        }
     }
 
     func drawUI(tweet: Tweet) {

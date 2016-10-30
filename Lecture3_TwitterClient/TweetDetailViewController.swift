@@ -78,7 +78,7 @@ class TweetDetailViewController: UIViewController {
                 TwitterClient.sharedInstance.unretweet(id: tweet.id!) { (response, error) -> () in
                     if error == nil {
                         self.tweet?.updateFromDic(dic: response!)
-                        self.tweet?.numRetweets = (self.tweet?.numRetweets)! - 1
+                        self.tweet?.numRetweets -= 1
                         if (self.tweet?.numRetweets)! < 0 {
                             self.tweet?.numRetweets = 0
                         }
@@ -111,7 +111,7 @@ class TweetDetailViewController: UIViewController {
         }
     }
     @IBAction func onReply(_ sender: AnyObject) {
-        
+        performSegue(withIdentifier: "TweetReply", sender: sender)
     }
 
     @IBAction func onBack(_ sender: AnyObject) {

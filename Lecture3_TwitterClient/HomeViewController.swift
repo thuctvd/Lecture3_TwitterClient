@@ -126,6 +126,11 @@ class HomeViewController: UIViewController {
                 let indexPath = tableView.indexPathForSelectedRow
                 let currentTweet = tweets[indexPath!.row]
                 nextViewController.tweet = currentTweet
+            } else if let tweetReply = navigationController.topViewController as? ReplyViewController {
+                let tweet = sender as! Tweet
+                tweetReply.targetUserName = "@\(tweet.user!.screenName!) "
+                tweetReply.id = tweet.id!
+                tweetReply.delegate = self
             }
         }
     }
@@ -136,6 +141,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource, UITwit
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tweets.count
     }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TwitterCell") as! TwitterCell
         
@@ -153,6 +159,22 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource, UITwit
         
         return cell
     }
+    
+    func twitterCell(twitterCell: TwitterCell, replyTo tweet: Tweet) {
+        performSegue(withIdentifier: "TweetReply", sender: tweet)
+
+    }
+}
+
+extension HomeViewController: ReplyViewControllerDelegate {
+    
+    func replyView(_ replyViewController: ReplyViewController, response: NSDictionary?) {
+        if response != nil {
+            tweets.insert(Tweet(dictionary: response!), at: 0)
+            tableView.reloadData()
+        }
+    }
+    
 }
 
 extension HomeViewController: UINewTweetViewDelegate {
